@@ -6,23 +6,46 @@ CLogReader::CLogReader()
 
 CLogReader::~CLogReader()
 {
+	Close();
 }
 
-bool CLogReader::Open()
+bool CLogReader::Open(const char *filename)
 {
-	return false;
+	if (file_)
+	{
+		Close();
+	}
+
+	
+	return fopen_s(&file_, filename, "w") == 0;
 }
 
 void CLogReader::Close()
 {
+	if (file_)
+	{
+		fclose(file_);
+		file_ = nullptr;
+	}
 }
 
-bool CLogReader::SetFilter(const char* filter)
+bool CLogReader::SetFilter(const char* filter, const size_t size)
 {
-	return false;
+	if (! file_)
+	{
+		return false;
+	}
+
+	filter_str_ = MyString{ filter, size };
+
+	return bool(filter_str_);	
 }
 
-bool CLogReader::GetNextLine(char* buf, const int bufsize)
+bool CLogReader::GetNextLine(char* buf, const size_t bufsize)
 {
-	return false;
+	if ( (! file_) || (! filter_str_) )
+	{
+		return false;
+	}
+	return true;
 }

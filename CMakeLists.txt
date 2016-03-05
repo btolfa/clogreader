@@ -6,6 +6,7 @@ set(SOURCES
 src/main/main.cpp
 src/logreader/CLogReader.h
 src/logreader/CLogReader.cpp
+src/tools/MyString.h
 )
 
 

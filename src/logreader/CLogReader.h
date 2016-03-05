@@ -1,15 +1,30 @@
 #pragma once
 
+#include <stdio.h>
+
+#include "../tools/MyString.h"
+
 class CLogReader {
 public:
 	CLogReader();
 	~CLogReader();
 
-	bool    Open();                       // открытие файла, false - ошибка
-	void    Close();                         // закрытие файла
+	// открытие файла, false - ошибка
+	bool Open(const char* filename);
 
-	bool    SetFilter(const char *filter);   // установка фильтра строк, false - ошибка
-	bool    GetNextLine(char *buf,           // запрос очередной найденной строки,
-		const int bufsize);  // buf - буфер, bufsize - максимальная длина
-							 // false - конец файла или ошибка
+	// закрытие файла
+	void Close();
+
+	// установка фильтра строк, false - ошибка
+	bool SetFilter(const char* filter, const size_t size);
+
+	// запрос очередной найденной строки,
+	// buf - буфер, bufsize - максимальная длина
+	// false - конец файла или ошибка
+	bool GetNextLine(char* buf, const size_t bufsize);
+
+private:
+	FILE * file_ {nullptr};
+	MyString filter_str_;
+	
 };

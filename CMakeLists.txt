@@ -6,6 +6,10 @@ set(SOURCES
 src/logreader/CLogReader.h
 src/logreader/CLogReader.cpp
 src/tools/MyString.h
+src/regex/MyRegex.h
+src/regex/MyRegex.cpp
+src/regex/Matcher.h
+src/regex/Matcher.cpp
 )
 add_library(logreader ${SOURCES})
 

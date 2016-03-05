@@ -31,11 +31,6 @@ void CLogReader::Close()
 
 bool CLogReader::SetFilter(const char* filter, const size_t size)
 {
-	if (! file_)
-	{
-		return false;
-	}
-
 	filter_str_ = MyString{ filter, size };
 
 	return bool(filter_str_);	

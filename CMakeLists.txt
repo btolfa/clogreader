@@ -11,3 +11,7 @@ src/tools/MyString.h
 
 
 add_executable(clogreader ${SOURCES})
+
+enable_testing()
+
+add_subdirectory(tests)

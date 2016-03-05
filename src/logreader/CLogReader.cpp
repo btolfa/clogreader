@@ -17,7 +17,7 @@ bool CLogReader::Open(const char *filename)
 	}
 
 	
-	return fopen_s(&file_, filename, "w") == 0;
+	return fopen_s(&file_, filename, "r") == 0;
 }
 
 void CLogReader::Close()

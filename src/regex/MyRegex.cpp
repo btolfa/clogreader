@@ -5,30 +5,7 @@
 #include <tuple>
 #include <iterator>
 
-/// Возможные типы состояний нашей NFA
-enum class state_type : uint8_t
-{
-	This, ///< Ожидаем определённый символ
-	Any,  ///< Ожидаем любой символ, соотвествует '?' во шаблоне
-	Star, ///< Ожидаем любой количество символов, и после этого ожидаем определённый символ - '*a'
-	EndOfLine, ///< Ожидаем конца входной строки
-	Match ///< Если мы в этом состоянии, значит строка подходит под выражение
-};
-
-/// Структура для одного состояния
-struct State
-{
-	State() noexcept {};
-	State(const state_type type, char symbol = 0) : type{ type }, symbol{ symbol } {}
-
-	bool is_star() const noexcept
-	{
-		return type == state_type::Star;
-	}
-
-	state_type type;
-	char symbol;
-};
+#include "State.h"
 
 /// Количество активных символов + 1 для символа конца строки
 auto count_active_symbol(const char* pattern, const size_t size) noexcept

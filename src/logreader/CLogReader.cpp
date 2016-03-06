@@ -1,5 +1,7 @@
 #include "CLogReader.h"
 
+#include "../regex/MyRegex.h"
+
 CLogReader::CLogReader()
 {
 }
@@ -31,16 +33,19 @@ void CLogReader::Close()
 
 bool CLogReader::SetFilter(const char* filter, const size_t size)
 {
-	filter_str_ = MyString{ filter, size };
-
-	return bool(filter_str_);	
+	delete p_filter_;
+	p_filter_ = new (std::nothrow) MyRegex(filter, size);
+	
+	return p_filter_ && *p_filter_;
 }
 
 bool CLogReader::GetNextLine(char* buf, const size_t bufsize)
 {
-	if ( (! file_) || (! filter_str_) )
+	if (!(file_ && p_filter_ && *p_filter_))
 	{
 		return false;
 	}
+
+
 	return true;
 }

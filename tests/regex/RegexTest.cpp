@@ -4,7 +4,6 @@
 using ::testing::StrEq;
 
 #include "../../src/regex/MyRegex.h"
-#include "../../src/tools/MyString.h"
 
 #include <vector>
 #include <list>

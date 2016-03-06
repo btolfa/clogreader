@@ -28,6 +28,10 @@ public:
 	// Пустые ли контейнеры - часто это означает, что совпадения нет
 	bool is_empty() const noexcept;
 
+	explicit operator bool() const noexcept {
+		return other && buffer && stars && new_stars;
+	}
+
 private:
 	dynamic_array<iterator> other;
 	dynamic_array<iterator> buffer;

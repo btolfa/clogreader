@@ -1,5 +1,4 @@
 #include "MyRegex.h"
-#include "../tools/MyString.h"
 
 #include "State.h"
 #include "StateOfFSM.h"
@@ -151,4 +150,8 @@ std::pair<char *, size_t> MyRegex::simplify(const char* pattern, const size_t si
 	}
 
 	return{ result, out_ptr - result + 1 };
+}
+
+MyRegex::operator bool() const noexcept{
+	return p_states && p_sof && *p_sof;
 }

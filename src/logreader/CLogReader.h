@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-#include "../tools/MyString.h"
+class MyRegex;
 
 class CLogReader {
 public:
@@ -25,6 +25,5 @@ public:
 
 private:
 	FILE * file_ {nullptr};
-	MyString filter_str_;
-	
+	MyRegex * p_filter_{ nullptr };	
 };

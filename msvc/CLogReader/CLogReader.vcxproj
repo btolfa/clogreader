@@ -142,6 +142,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\logreader\CLogReader.cpp" />
+    <ClCompile Include="..\..\src\main\main.cpp" />
+    <ClCompile Include="..\..\src\regex\MyRegex.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\logreader\CLogReader.h" />
+    <ClInclude Include="..\..\src\regex\dynamic_array.h" />
+    <ClInclude Include="..\..\src\regex\MyRegex.h" />
+    <ClInclude Include="..\..\src\regex\State.h" />
+    <ClInclude Include="..\..\src\regex\StateOfFSM.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

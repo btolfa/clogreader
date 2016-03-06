@@ -11,11 +11,12 @@ class MyRegex
 {
 public:
 	MyRegex(const char * pattern, const size_t size) noexcept;
+	~MyRegex() noexcept;
 	bool regex_match(const char * input, const size_t size) const noexcept;
 
 	static MyString simplify(MyString const& str);
 
 private:
-	State * states;	
+	State * p_states{ nullptr };
 };
 

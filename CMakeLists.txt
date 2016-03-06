@@ -8,6 +8,9 @@ src/logreader/CLogReader.cpp
 src/tools/MyString.h
 src/regex/MyRegex.h
 src/regex/MyRegex.cpp
+src/regex/State.h
+src/regex/dynamic_array.h
+src/regex/StateOfFSM.h
 )
 add_library(logreader ${SOURCES})
 

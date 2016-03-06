@@ -389,4 +389,50 @@ TEST(RegexTest, ShouldMatchToMultiStar2)
 	EXPECT_FALSE(fsm.regex_match("cebea", sizeof("cebea")));
 }
 
+std::string simplify(std::string pattern)
+{
+	if (pattern.size() == 0) {
+		return "";
+	}
+
+	std::string result(pattern.size(), pattern.front());
+	auto output_it = result.begin();
+
+	for (auto it = pattern.begin(); it != pattern.end(); ++it) {
+		switch (*it) {
+		case '?':
+			if (*output_it == '*') {
+				// Ставим ? перед *
+				*output_it = *it;
+				++output_it;
+				*output_it = '*';
+			} else {
+				++output_it;
+				*output_it = *it;
+			}
+			break;
+		case '*':
+			if (*output_it != '*') {
+				++output_it;
+				*output_it = *it;
+			}
+			break;
+		default:
+			++output_it;
+			*output_it = *it;
+			break;
+		}
+	}
+
+	result.resize(output_it - result.begin() + 1);
+
+	return result;
+}
+
+TEST(PatternSimplifyTest, SimplifyAnyAndStars)
+{
+	EXPECT_EQ(std::string{ "?*ab?*c" }, simplify("*****?**ab*?*c"));
+	EXPECT_EQ(std::string{ "?????*ab?*c??" }, simplify("**?***????**ab*?*c??"));
+}
+
 }

@@ -5,7 +5,6 @@ project(clogreader CXX)
 set(SOURCES 
 src/logreader/CLogReader.h
 src/logreader/CLogReader.cpp
-src/tools/MyString.h
 src/regex/MyRegex.h
 src/regex/MyRegex.cpp
 src/regex/State.h

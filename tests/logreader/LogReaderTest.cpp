@@ -52,6 +52,77 @@ TEST_F(LogReaderTest, ShouldFailOnEmptyFile)
 	ASSERT_TRUE(reader.SetFilter("?", strlen("?")));
 	ASSERT_TRUE(reader.Open(empty_file.path()));
 	EXPECT_FALSE(reader.GetNextLine(buffer, sizeof(buffer)));
+	reader.Close();
 }
+
+TEST_F(LogReaderTest, ShouldMatchIfFileIsWholeString)
+{
+	TmpFile test_file{R"(a)"};
+	ASSERT_TRUE(reader.SetFilter("a", strlen("a")));
+	ASSERT_TRUE(reader.Open(test_file.path()));
+	EXPECT_TRUE(reader.GetNextLine(buffer, sizeof(buffer)));
+	EXPECT_THAT(buffer, ::testing::StrEq("a"));
+	EXPECT_FALSE(reader.GetNextLine(buffer, sizeof(buffer)));
+	reader.Close();
+}
+
+TEST_F(LogReaderTest, ShouldMatchIfFileIsLineAndEndOfLine)
+{
+	TmpFile test_file{ 
+R"(a
+)"
+};
+	ASSERT_TRUE(reader.SetFilter("a", strlen("a")));
+	ASSERT_TRUE(reader.Open(test_file.path()));
+	EXPECT_TRUE(reader.GetNextLine(buffer, sizeof(buffer)));
+	EXPECT_THAT(buffer, ::testing::StartsWith("a"));
+	EXPECT_FALSE(reader.GetNextLine(buffer, sizeof(buffer)));
+	reader.Close();
+}
+
+TEST_F(LogReaderTest, ShouldMatchAllLinesFromFile)
+{
+	TmpFile test_file{
+		R"(abc
+abc
+abc)"
+	};
+	ASSERT_TRUE(reader.SetFilter("abc", strlen("abc")));
+	ASSERT_TRUE(reader.Open(test_file.path()));
+
+	EXPECT_TRUE(reader.GetNextLine(buffer, sizeof(buffer)));
+	EXPECT_THAT(buffer, ::testing::StartsWith("abc"));
+
+	EXPECT_TRUE(reader.GetNextLine(buffer, sizeof(buffer)));
+	EXPECT_THAT(buffer, ::testing::StartsWith("abc"));
+
+	EXPECT_TRUE(reader.GetNextLine(buffer, sizeof(buffer)));
+	EXPECT_THAT(buffer, ::testing::StartsWith("abc"));
+
+	EXPECT_FALSE(reader.GetNextLine(buffer, sizeof(buffer)));
+	reader.Close();
+}
+
+TEST_F(LogReaderTest, ShouldMatchSomeLinesFromFile)
+{
+	TmpFile test_file{
+		R"(abc
+cba
+abc)"
+	};
+	ASSERT_TRUE(reader.SetFilter("abc", strlen("abc")));
+	ASSERT_TRUE(reader.Open(test_file.path()));
+
+	EXPECT_TRUE(reader.GetNextLine(buffer, sizeof(buffer)));
+	EXPECT_THAT(buffer, ::testing::StartsWith("abc"));
+
+	EXPECT_TRUE(reader.GetNextLine(buffer, sizeof(buffer)));
+	EXPECT_THAT(buffer, ::testing::StartsWith("abc"));
+
+	EXPECT_FALSE(reader.GetNextLine(buffer, sizeof(buffer)));
+	reader.Close();
+}
+
+
 
 }

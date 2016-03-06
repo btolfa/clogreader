@@ -1,7 +1,6 @@
 #include "CLogReader.h"
 
 #include "../regex/MyRegex.h"
-#include <iostream>
 
 CLogReader::CLogReader()
 {
@@ -47,15 +46,25 @@ bool CLogReader::GetNextLine(char* buf, const size_t bufsize)
 		return false;
 	}
 
-	size_t linesize{ 0 };
-	if (fgets(buf, bufsize, file_)) {
-		linesize = strlen(buf);
-		std::cout << linesize << "\n";
-		return true;	
-	} else {
-		// Если это какая-то другая ошибка выходим
-		return false;
-	};
+	while (fgets(buf, bufsize, file_)) {
+		auto linesize = strlen(buf);
+		// Может быть что строка не поместилась в буфер
+		if (linesize == bufsize - 1) {
+			if (fgetc(file_) != EOF) {
+				// Строка не помещается в выходной буфер
+				return false;
+			}
+		}
 
+		// Не отдаём движку regex символ конца строки
+		if (buf[linesize - 1] == '\n') {
+			--linesize;
+		}
+
+		if (p_filter_->regex_match(buf, linesize)) {
+			return true;
+		}
+	}
+	
 	return false;
 }

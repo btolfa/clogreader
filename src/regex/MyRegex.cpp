@@ -6,6 +6,7 @@
 #include <iterator>
 
 #include "State.h"
+#include "StateOfFSM.h"
 
 /// Количество активных символов + 1 для символа конца строки
 auto count_active_symbol(const char* pattern, const size_t size) noexcept
@@ -15,6 +16,16 @@ auto count_active_symbol(const char* pattern, const size_t size) noexcept
 		return  ch != '*';
 	});
 }
+
+/// Количество * в шаблоне
+auto count_stars(const char* pattern, const size_t size) noexcept
+{
+	return std::count_if(pattern, pattern + size, [](const char ch)
+	{
+		return  ch == '*';
+	});
+}
+
 
 /// Создаём все состояния из заданного шаблона
 std::pair<State*, size_t> generate_states(const char* pattern, const size_t size)
@@ -56,116 +67,6 @@ std::pair<State*, size_t> generate_states(const char* pattern, const size_t size
 	}
 
 	return std::make_pair(p_states, (p_next_state - p_states)/sizeof(State));
-}
-
-class dynamic_array
-{
-public:
-	using value_type = State *;
-	using pointer = value_type *;
-
-	dynamic_array(size_t max_size) noexcept
-	{
-		data_ = new (std::nothrow) value_type[max_size];
-	}
-
-	~dynamic_array() noexcept
-	{
-		delete[] data_;
-	}
-
-	explicit operator bool() const noexcept
-	{
-		return data_ != nullptr;
-	}
-
-	void push_back(value_type const& value) noexcept
-	{
-		data_[size_++] = value;
-	}
-
-	void clear() noexcept
-	{
-		size_ = 0;
-	}
-
-	pointer begin() noexcept
-	{
-		return data_;
-	}
-
-	pointer end() noexcept
-	{
-		return data_ + size_;
-	}
-
-	pointer begin() const noexcept
-	{
-		return data_;
-	}
-
-	pointer end() const noexcept
-	{
-		return data_ + size_;
-	}
-
-	bool empty() const noexcept {
-		return size_ == 0;
-	}
-
-	value_type back() const noexcept {
-		return data_[size_ - 1];
-	}
-
-	friend void swap(dynamic_array & lhs, dynamic_array & rhs) noexcept
-	{
-		std::swap(lhs.data_, rhs.data_);
-		std::swap(lhs.size_, rhs.size_);
-	}
-
-private:
-
-	value_type * data_{ nullptr };
-	size_t size_{ 0 };
-};
-
-class StateOfFSM
-{
-public:
-	using iterator = State *;
-
-	StateOfFSM(size_t max_size) noexcept;
-
-	// Перезапускаем FSM, если вернуло false то не можем запустить
-	bool start(iterator first) noexcept;
-
-	// Очистить контейнеры для следующего захода
-	void clear() noexcept;
-
-	// Если true - то мы нашли совпадение на текущем символе
-	bool check(const char ch) noexcept;
-
-	// Если true - мы нашли совпадение на конце входной строки
-	bool check_eol() const noexcept;
-
-	// Пустые ли контейнеры - часто это означает, что совпадения нет
-	bool is_empty() const noexcept;
-
-private:
-	dynamic_array other;
-	dynamic_array buffer;
-
-	dynamic_array stars;
-
-	dynamic_array new_stars;
-};
-
-auto count_stars(const char* pattern, const size_t size) noexcept
-{
-	return std::count_if(pattern, pattern + size, [](const char ch)
-	{
-		return  ch == '*';
-	});
 }
 
 MyRegex::MyRegex(const char* pattern, const size_t size) noexcept {
@@ -225,103 +126,4 @@ MyString MyRegex::simplify(MyString const& str)
 
 	result.set_size(newsize);
 	return result;
-}
-
-StateOfFSM::StateOfFSM(size_t max_size) noexcept : other{max_size}, buffer{max_size}, stars{max_size}, new_stars{max_size * 2} {}
-
-void StateOfFSM::clear() noexcept
-{
-	other.clear();
-	buffer.clear();
-	stars.clear();
-	new_stars.clear();
-}
-
-bool StateOfFSM::check_eol() const noexcept
-{
-	return std::any_of(other.begin(), other.end(), [](const auto p_state)
-	{
-		return p_state->type == state_type::EndOfLine || p_state->type == state_type::Match;
-	});
-}
-
-bool StateOfFSM::is_empty() const noexcept
-{
-	return other.empty() && stars.empty();
-}
-
-bool StateOfFSM::start(iterator first) noexcept
-{	
-	// Если какой-то из контейнеров не готов, мы не можешь работать
-	if (!(other && buffer && stars)) {
-		return false;
-	}
-
-	if (first->is_star()) {
-		stars.push_back(first);
-	} else {
-		other.push_back(first);
-	}
-
-	return true;
-}
-
-bool StateOfFSM::check(const char ch) noexcept
-{
-	new_stars.clear();
-	buffer.clear();
-
-	// Проверяем по не * состояниям
-	for (auto it = other.begin(); it != other.end(); ++it) {
-		auto b_do_next = false;
-		
-		switch ((*it)->type) {
-		case state_type::This:
-			if (ch == (*it)->symbol) {
-				b_do_next = true;				
-			}
-			break;
-		case state_type::Any:
-			b_do_next = true;		
-			break;			
-		case state_type::EndOfLine: 
-			break;
-		case state_type::Match:
-			return true;
-		default: 
-			break;
-		}
-		
-		if (b_do_next) {
-			if ((++(*it))->is_star()) {
-				new_stars.push_back(*it);
-			} else {
-				buffer.push_back(*it);
-			}
-		}
-	}
-
-	// Теперь проверяем по * состояниям
-	for (auto it = stars.begin(); it != stars.end(); ++it) {
-		if (ch == (*it)->symbol) {
-			// next
-			auto next = *it + 1;
-			if (next->is_star()) {
-				new_stars.push_back(next);
-			} else {
-				buffer.push_back(next);
-			}
-		}
-	}
-
-	// Меняем местами старый и новые буферы для не * состояний
-	swap(other, buffer);
-
-	// Новые состояния * копируем их в stars только если они больше старых
-	std::copy_if(new_stars.begin(), new_stars.end(), std::back_inserter(stars), [this](const auto it)
-	{
-		return stars.empty() || it > stars.back();
-	});	
-
-	return false;
 }

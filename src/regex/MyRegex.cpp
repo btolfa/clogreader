@@ -29,7 +29,7 @@ auto count_stars(const char* pattern, const size_t size) noexcept
 std::pair<State*, size_t> generate_states(const char* pattern, const size_t size)
 {		
 	// Для состояний нужно выделить количество активных символов в шаблоне + 1 для символа конца строки + 1 для Match состояния
-	auto p_states = new (std::nothrow) State[count_active_symbol(pattern, size) + 1];
+	auto p_states = new (std::nothrow) State[count_active_symbol(pattern, size) + 2];
 
 	// Если нет памяти, то ничего делать нельзя
 	if (! p_states) {
@@ -45,23 +45,22 @@ std::pair<State*, size_t> generate_states(const char* pattern, const size_t size
 		}
 
 		if (b_is_star) {
-			if (*it == 0) {
-				// Если последним символом был * - подходит строка с любым концом
-				*p_next_state++ = State{ state_type::Match };				
-			} else {				
-				*p_next_state++ = State{ state_type::Star, *it };				
-			}
+			*p_next_state++ = State{ state_type::Star, *it };			
 			b_is_star = false;
 		} else {
 			if (*it == '?') {
-				*p_next_state++ = State{ state_type::Any};
- 			} else if (*it == 0) {
-				*p_next_state++ = State{ state_type::EndOfLine };
-				*p_next_state++ = State{ state_type::Match };
+				*p_next_state++ = State{ state_type::Any}; 			
  			} else {
 				*p_next_state++ = State{ state_type::This, *it };
  			}
 		}
+	}
+
+	if (b_is_star) {
+		*p_next_state++ = State{ state_type::Match };
+	} else {
+		*p_next_state++ = State{ state_type::EndOfLine };
+		*p_next_state++ = State{ state_type::Match };
 	}
 
 	return std::make_pair(p_states, (p_next_state - p_states)/sizeof(State));
@@ -89,13 +88,9 @@ bool MyRegex::regex_match(const char* input, const size_t size) noexcept
 		return false;
 	}
 
-	for (auto it = input; it != input + size; ++it) {
-		if (*it != 0) {
-			if (p_sof->check(*it)) {
-				return true;
-			}
-		} else {
-			return p_sof->check_eol();
+	for (auto it = input; it != input + size; ++it) {		
+		if (p_sof->check(*it)) {
+			return true;
 		}
 
 		if (p_sof->is_empty()) {
@@ -103,7 +98,7 @@ bool MyRegex::regex_match(const char* input, const size_t size) noexcept
 		}
 	}
 
-	return false;
+	return p_sof->check_eol();
 }
 
 std::pair<char *, size_t> MyRegex::simplify(const char* pattern, const size_t size) noexcept

@@ -52,7 +52,7 @@ INSTANTIATE_TEST_CASE_P(SimplifyRegexTest,
 
 TEST(RegexTest, ShouldMatchToStar)
 {
-	MyRegex fsm{ "*", sizeof("*") };
+	MyRegex fsm{ "*", strlen("*") };
 	EXPECT_TRUE(fsm.regex_match("", strlen("")));
 	EXPECT_TRUE(fsm.regex_match("a", strlen("a")));
 	EXPECT_TRUE(fsm.regex_match("abc", strlen("abc")));

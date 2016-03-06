@@ -67,8 +67,17 @@ std::pair<State*, size_t> generate_states(const char* pattern, const size_t size
 }
 
 MyRegex::MyRegex(const char* pattern, const size_t size) noexcept {
-	std::tie(p_states, states_size) = generate_states(pattern, size);
+	auto simplified = simplify(pattern, size);
+
+	// Если на предыдущем шаге не выделили памяти, то тут нечего делать.
+	if (! simplified.first) {
+		return;
+	}
+
+	std::tie(p_states, states_size) = generate_states(simplified.first, simplified.second);
 	p_sof = new (std::nothrow) StateOfFSM(count_stars(pattern, size) + 1);
+
+	delete[] simplified.first;
 }
 
 MyRegex::~MyRegex() noexcept

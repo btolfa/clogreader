@@ -1,12 +1,10 @@
 #include "MyRegex.h"
 #include "../tools/MyString.h"
 
-#include <algorithm>
-#include <tuple>
-#include <iterator>
-
 #include "State.h"
 #include "StateOfFSM.h"
+
+#include <tuple>
 
 /// Количество активных символов + 1 для символа конца строки
 auto count_active_symbol(const char* pattern, const size_t size) noexcept

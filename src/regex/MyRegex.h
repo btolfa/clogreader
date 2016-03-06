@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
 // Based on https://swtch.com/~rsc/regexp/regexp1.html
 
 class MyString;

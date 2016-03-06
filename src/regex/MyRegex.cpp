@@ -106,22 +106,45 @@ bool MyRegex::regex_match(const char* input, const size_t size) noexcept
 	return false;
 }
 
-MyString MyRegex::simplify(MyString const& str)
+std::pair<char *, size_t> MyRegex::simplify(const char* pattern, const size_t size) noexcept
 {	
-	auto result = str;
-	auto result_ptr = result.data();	
+	// Если строка пустая, то нечего делать
+	if (size == 0) {
+		return{ nullptr, 0 };
+	}
 
-	*result_ptr = str[0];
-	result_ptr++;
-	size_t newsize = 1;
-	for (auto it = str.data() + 1; it != str.data() + str.size(); ++it) {
-		if (!(*(result_ptr-1) == '*' && (*it == '*'))) {
-			*result_ptr = *it;
-			++newsize;
-			++result_ptr;
+	// Выделяем память под новую строку
+	char * result = new (std::nothrow) char[size];
+
+	// Если память не выделилась, то нам нечего делать
+	if (! result) {
+		return{ nullptr, 0 };
+	}	
+
+	auto out_ptr = result;
+	*out_ptr = *pattern;
+	for (auto ptr = pattern + 1; ptr != pattern + size; ++ptr) {
+		switch(*ptr) {
+		case '?':
+			if (*out_ptr == '*') {
+				// Ставим ? перед *
+				*out_ptr = '?';
+				*(++out_ptr) = '*';
+			}
+			else {
+				*(++out_ptr) = '?';
+			}
+			break;
+		case '*':
+			if (*out_ptr != '*') {
+				*(++out_ptr) = '*';
+			}
+			break;
+		default:
+			*(++out_ptr) = *ptr;
+			break;
 		}
 	}
 
-	result.set_size(newsize);
-	return result;
+	return{ result, out_ptr - result + 1 };
 }

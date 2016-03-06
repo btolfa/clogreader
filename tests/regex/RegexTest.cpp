@@ -20,10 +20,11 @@ protected:
 TEST_P(SimplifyRegexTest, ShouldSimplifyRegex)
 {	
 	const auto& str = GetParam().first;
-	auto simplified = MyRegex::simplify({ str.data(), str.size() });
-	std::string result(simplified.data(), simplified.size());
+	auto simplified = MyRegex::simplify(str.c_str(), str.size());
+	std::string result(simplified.first, simplified.second);
 
 	EXPECT_THAT(result, StrEq(GetParam().second));
+	delete[] simplified.first;
 }
 
 std::vector<SimplifyTestCase> simplify_cases()
@@ -39,7 +40,9 @@ std::vector<SimplifyTestCase> simplify_cases()
 		{ "*****So******me***" , "*So*me*" },
 		{ "Some?" , "Some?" },
 		{ "Some?*" , "Some?*" },
-		{ "*****Some?" , "*Some?" }
+		{ "*****Some?" , "*Some?" },
+		{ "*****?**ab*?*c" , "?*ab?*c" },
+		{ "**?***????**ab*?*c??", "?????*ab?*c??" }
 	};
 }
 
@@ -387,52 +390,6 @@ TEST(RegexTest, ShouldMatchToMultiStar2)
 	EXPECT_TRUE(fsm.regex_match("aeeebeeebc", sizeof("aeeebeeebc")));
 	EXPECT_FALSE(fsm.regex_match("", sizeof("")));
 	EXPECT_FALSE(fsm.regex_match("cebea", sizeof("cebea")));
-}
-
-std::string simplify(std::string pattern)
-{
-	if (pattern.size() == 0) {
-		return "";
-	}
-
-	std::string result(pattern.size(), pattern.front());
-	auto output_it = result.begin();
-
-	for (auto it = pattern.begin(); it != pattern.end(); ++it) {
-		switch (*it) {
-		case '?':
-			if (*output_it == '*') {
-				// Ставим ? перед *
-				*output_it = *it;
-				++output_it;
-				*output_it = '*';
-			} else {
-				++output_it;
-				*output_it = *it;
-			}
-			break;
-		case '*':
-			if (*output_it != '*') {
-				++output_it;
-				*output_it = *it;
-			}
-			break;
-		default:
-			++output_it;
-			*output_it = *it;
-			break;
-		}
-	}
-
-	result.resize(output_it - result.begin() + 1);
-
-	return result;
-}
-
-TEST(PatternSimplifyTest, SimplifyAnyAndStars)
-{
-	EXPECT_EQ(std::string{ "?*ab?*c" }, simplify("*****?**ab*?*c"));
-	EXPECT_EQ(std::string{ "?????*ab?*c??" }, simplify("**?***????**ab*?*c??"));
 }
 
 }

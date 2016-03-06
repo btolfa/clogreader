@@ -1,6 +1,13 @@
 #include "MyRegex.h"
 #include "../tools/MyString.h"
 
+MyRegex::MyRegex(const char* pattern, const size_t size) noexcept {}
+
+bool MyRegex::regex_match(const char* input, const size_t size) const noexcept
+{
+	return false;
+}
+
 MyString MyRegex::simplify(MyString const& str)
 {	
 	auto result = str;

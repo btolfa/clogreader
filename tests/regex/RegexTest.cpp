@@ -53,81 +53,81 @@ INSTANTIATE_TEST_CASE_P(SimplifyRegexTest,
 TEST(RegexTest, ShouldMatchToStar)
 {
 	MyRegex fsm{ "*", sizeof("*") };
-	EXPECT_TRUE(fsm.regex_match("", sizeof("")));
-	EXPECT_TRUE(fsm.regex_match("a", sizeof("a")));
-	EXPECT_TRUE(fsm.regex_match("abc", sizeof("abc")));
+	EXPECT_TRUE(fsm.regex_match("", strlen("")));
+	EXPECT_TRUE(fsm.regex_match("a", strlen("a")));
+	EXPECT_TRUE(fsm.regex_match("abc", strlen("abc")));
 }
 
 TEST(RegexTest, ShouldMatchToSymbolAndAny)
 {
-	MyRegex fsm{ "a*", sizeof("a*") };
-	EXPECT_TRUE(fsm.regex_match("a", sizeof("a")));
-	EXPECT_TRUE(fsm.regex_match("abc", sizeof("abc")));
-	EXPECT_FALSE(fsm.regex_match("bca", sizeof("bca")));
+	MyRegex fsm{ "a*", strlen("a*") };
+	EXPECT_TRUE(fsm.regex_match("a", strlen("a")));
+	EXPECT_TRUE(fsm.regex_match("abc", strlen("abc")));
+	EXPECT_FALSE(fsm.regex_match("bca", strlen("bca")));
 }
 
 TEST(RegexTest, ShouldMatchToAny)
 {
-	MyRegex fsm{ "?", sizeof("?") };
-	EXPECT_TRUE(fsm.regex_match("a", sizeof("a")));
-	EXPECT_TRUE(fsm.regex_match("b", sizeof("b")));
-	EXPECT_FALSE(fsm.regex_match("", sizeof("")));
-	EXPECT_FALSE(fsm.regex_match("ab", sizeof("ab")));
+	MyRegex fsm{ "?", strlen("?") };
+	EXPECT_TRUE(fsm.regex_match("a", strlen("a")));
+	EXPECT_TRUE(fsm.regex_match("b", strlen("b")));
+	EXPECT_FALSE(fsm.regex_match("", strlen("")));
+	EXPECT_FALSE(fsm.regex_match("ab", strlen("ab")));
 }
 
 TEST(RegexTest, ShouldMatchAnyStar)
 {
-	MyRegex fsm{ "?*", sizeof("?*") };
-	EXPECT_TRUE(fsm.regex_match("a", sizeof("a")));
-	EXPECT_TRUE(fsm.regex_match("b", sizeof("b")));
-	EXPECT_TRUE(fsm.regex_match("ab", sizeof("ab")));
-	EXPECT_TRUE(fsm.regex_match("abc", sizeof("abc")));
-	EXPECT_FALSE(fsm.regex_match("", sizeof("")));
+	MyRegex fsm{ "?*", strlen("?*") };
+	EXPECT_TRUE(fsm.regex_match("a", strlen("a")));
+	EXPECT_TRUE(fsm.regex_match("b", strlen("b")));
+	EXPECT_TRUE(fsm.regex_match("ab", strlen("ab")));
+	EXPECT_TRUE(fsm.regex_match("abc", strlen("abc")));
+	EXPECT_FALSE(fsm.regex_match("", strlen("")));
 }
 
 TEST(RegexTest, ShouldMatchString)
 {
-	MyRegex fsm{ "abc", sizeof("abc") };
-	EXPECT_TRUE(fsm.regex_match("abc", sizeof("abc")));
-	EXPECT_FALSE(fsm.regex_match("", sizeof("")));
-	EXPECT_FALSE(fsm.regex_match("abcd", sizeof("abcd")));
-	EXPECT_FALSE(fsm.regex_match("cba", sizeof("cba")));
-	EXPECT_FALSE(fsm.regex_match("ab", sizeof("ab")));
-	EXPECT_FALSE(fsm.regex_match("a", sizeof("a")));
+	MyRegex fsm{ "abc", strlen("abc") };
+	EXPECT_TRUE(fsm.regex_match("abc", strlen("abc")));
+	EXPECT_FALSE(fsm.regex_match("", strlen("")));
+	EXPECT_FALSE(fsm.regex_match("abcd", strlen("abcd")));
+	EXPECT_FALSE(fsm.regex_match("cba", strlen("cba")));
+	EXPECT_FALSE(fsm.regex_match("ab", strlen("ab")));
+	EXPECT_FALSE(fsm.regex_match("a", strlen("a")));
 }
 
 TEST(RegexTest, ShouldMatchSymbolAndAny)
 {
-	MyRegex fsm{ "a?b", sizeof("a?b") };
-	EXPECT_TRUE(fsm.regex_match("abb", sizeof("abb")));
-	EXPECT_FALSE(fsm.regex_match("ab", sizeof("ab")));
+	MyRegex fsm{ "a?b", strlen("a?b") };
+	EXPECT_TRUE(fsm.regex_match("abb", strlen("abb")));
+	EXPECT_FALSE(fsm.regex_match("ab", strlen("ab")));
 }
 
 TEST(RegexTest, ShouldEndOfString)
 {
-	MyRegex fsm{ "*a", sizeof("*a") };
-	EXPECT_TRUE(fsm.regex_match("a", sizeof("a")));
-	EXPECT_TRUE(fsm.regex_match("aaaa", sizeof("aaaa")));
-	EXPECT_FALSE(fsm.regex_match("", sizeof("")));
-	EXPECT_FALSE(fsm.regex_match("ab", sizeof("ab")));
+	MyRegex fsm{ "*a", strlen("*a") };
+	EXPECT_TRUE(fsm.regex_match("a", strlen("a")));
+	EXPECT_TRUE(fsm.regex_match("aaaa", strlen("aaaa")));
+	EXPECT_FALSE(fsm.regex_match("", strlen("")));
+	EXPECT_FALSE(fsm.regex_match("ab", strlen("ab")));
 }
 
 TEST(RegexTest, ShouldMatchToMultiStar)
 {
-	MyRegex fsm{ "a*b*c", sizeof("a*b*c") };
-	EXPECT_TRUE(fsm.regex_match("abc", sizeof("abc")));
-	EXPECT_TRUE(fsm.regex_match("aeeebeeebc", sizeof("aeeebeeebc")));
-	EXPECT_FALSE(fsm.regex_match("", sizeof("")));
-	EXPECT_FALSE(fsm.regex_match("cebea", sizeof("cebea")));
+	MyRegex fsm{ "a*b*c", strlen("a*b*c") };
+	EXPECT_TRUE(fsm.regex_match("abc", strlen("abc")));
+	EXPECT_TRUE(fsm.regex_match("aeeebeeebc", strlen("aeeebeeebc")));
+	EXPECT_FALSE(fsm.regex_match("", strlen("")));
+	EXPECT_FALSE(fsm.regex_match("cebea", strlen("cebea")));
 }
 
 TEST(RegexTest, ShouldMatchToMultiStar2)
 {
-	MyRegex fsm{ "a?*b*c", sizeof("a?*b*c") };
-	EXPECT_TRUE(fsm.regex_match("aebc", sizeof("aebc")));
-	EXPECT_TRUE(fsm.regex_match("aeeebeeebc", sizeof("aeeebeeebc")));
-	EXPECT_FALSE(fsm.regex_match("", sizeof("")));
-	EXPECT_FALSE(fsm.regex_match("cebea", sizeof("cebea")));
+	MyRegex fsm{ "a?*b*c", strlen("a?*b*c") };
+	EXPECT_TRUE(fsm.regex_match("aebc", strlen("aebc")));
+	EXPECT_TRUE(fsm.regex_match("aeeebeeebc", strlen("aeeebeeebc")));
+	EXPECT_FALSE(fsm.regex_match("", strlen("")));
+	EXPECT_FALSE(fsm.regex_match("cebea", strlen("cebea")));
 }
 
 }

@@ -6,17 +6,21 @@
 
 class MyString;
 struct State;
+class StateOfFSM;
 
 class MyRegex
 {
 public:
-	MyRegex(const char * pattern, const size_t size) noexcept;
+	MyRegex(const char* pattern, const size_t size) noexcept;
 	~MyRegex() noexcept;
-	bool regex_match(const char * input, const size_t size) const noexcept;
+	bool regex_match(const char* input, const size_t size) noexcept;
 
 	static MyString simplify(MyString const& str);
 
 private:
-	State * p_states{ nullptr };
+	State* p_states{nullptr};
+	size_t states_size{0};
+
+	StateOfFSM* p_sof{nullptr};
 };
 

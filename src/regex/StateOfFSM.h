@@ -29,7 +29,7 @@ public:
 	bool is_empty() const noexcept;
 
 	explicit operator bool() const noexcept {
-		return other && buffer && stars && new_stars;
+		return other && buffer && stars && tmp;
 	}
 
 private:
@@ -38,17 +38,17 @@ private:
 
 	dynamic_array<iterator> stars;
 
-	dynamic_array<iterator> new_stars;
+	dynamic_array<iterator> tmp;
 };
 
-inline StateOfFSM::StateOfFSM(size_t max_size) noexcept : other{ max_size }, buffer{ max_size }, stars{ max_size }, new_stars{ max_size * 2 } {}
+inline StateOfFSM::StateOfFSM(size_t max_size) noexcept : other{ max_size }, buffer{ max_size }, stars{ max_size }, tmp{ max_size * 2 } {}
 
 inline void StateOfFSM::clear() noexcept
 {
 	other.clear();
 	buffer.clear();
 	stars.clear();
-	new_stars.clear();
+	tmp.clear();
 }
 
 inline bool StateOfFSM::check_eol() const noexcept
@@ -83,62 +83,49 @@ inline bool StateOfFSM::start(iterator first) noexcept
 
 inline bool StateOfFSM::check(const char ch) noexcept
 {
-	new_stars.clear();
+	tmp.clear();
 	buffer.clear();
 
-	// Проверяем по не * состояниям
-	for (auto it = other.begin(); it != other.end(); ++it) {
-		auto b_do_next = false;
-
-		switch ((*it)->type) {
-		case state_type::This:
-			if (ch == (*it)->symbol) {
-				b_do_next = true;
-			}
-			break;
-		case state_type::Any:
-			b_do_next = true;
-			break;
-		case state_type::EndOfLine:
-			break;
-		case state_type::Match:
-			return true;
-		default:
-			break;
-		}
-
-		if (b_do_next) {
-			if ((++(*it))->is_star()) {
-				new_stars.push_back(*it);
-			}
-			else {
-				buffer.push_back(*it);
-			}
-		}
+	// Если есть совпадения выходим
+	if (std::any_of(other.begin(), other.end(),
+	                [](const auto p_state) {
+		                return p_state->is_match();
+	                })) {
+		return true;
 	}
 
-	// Теперь проверяем по * состояниям
-	for (auto it = stars.begin(); it != stars.end(); ++it) {
-		if (ch == (*it)->symbol) {
-			// next
-			auto next = *it + 1;
-			if (next->is_star()) {
-				new_stars.push_back(next);
-			}
-			else {
-				buffer.push_back(next);
-			}
-		}
-	}
+	// Копируем изменившиеся состояния из other в tmp
+	std::copy_if(other.begin(), other.end(), std::back_inserter(tmp),
+	             [ch](const auto p_state) {
+		             return p_state->is_any() || p_state->is_this(ch);
+	             });
 
-	// Меняем местами старый и новые буферы для не * состояний
+	// Копируем изменившиеся состояния из stars в tmp
+	std::copy_if(stars.begin(), stars.end(), std::back_inserter(tmp),
+	             [ch](const auto p_state) {
+		             return p_state->is_symbol(ch);
+	             });
+
+	// Выбираем следующее состояние для всех состояний из tmp
+	std::for_each(tmp.begin(), tmp.end(),
+	              [](auto& p_state) {
+		              ++p_state;
+	              });
+
+	// Копируем все не star состояния в buffer
+	std::copy_if(tmp.begin(), tmp.end(), std::back_inserter(buffer),
+	             [](const auto p_state) {
+		             return ! p_state->is_star();
+	             });
+
+	// Меняем местами старый и новые буферы для не star состояний
 	swap(other, buffer);
 
-	// Новые состояния * копируем их в stars только если они больше старых
-	std::copy_if(new_stars.begin(), new_stars.end(), std::back_inserter(stars), [this](const auto it)
-	{
-		return stars.empty() || it > stars.back();
-	});
+	// Копируем новые star состояния в stars
+	std::copy_if(tmp.begin(), tmp.end(), std::back_inserter(stars),
+	             [this](const auto p_state) {
+		             return p_state->is_star() && (stars.empty() || p_state > stars.back());
+	             });
 
 	return false;
 }

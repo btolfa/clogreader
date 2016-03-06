@@ -23,6 +23,23 @@ struct State
 		return type == state_type::Star;
 	}
 
+	bool is_symbol(const char ch) const noexcept
+	{
+		return ch == symbol;
+	}
+
+	bool is_any() const noexcept {
+		return type == state_type::Any;
+	}
+
+	bool is_this(const char ch) const noexcept {
+		return (type == state_type::This && symbol == ch);
+	}
+
+	bool is_match() const noexcept {
+		return type == state_type::Match;
+	}
+
 	state_type type;
 	char symbol;
 };

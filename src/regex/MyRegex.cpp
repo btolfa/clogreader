@@ -250,7 +250,7 @@ MyString MyRegex::simplify(MyString const& str)
 	return result;
 }
 
-StateOfFSM::StateOfFSM(size_t max_size) noexcept : other{ max_size }, buffer{ max_size }, stars{ max_size }, new_stars{ max_size*2 } {}
+StateOfFSM::StateOfFSM(size_t max_size) noexcept : other{max_size}, buffer{max_size}, stars{max_size}, new_stars{max_size * 2} {}
 
 void StateOfFSM::clear() noexcept
 {

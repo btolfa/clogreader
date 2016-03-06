@@ -8,7 +8,7 @@ class MyString
 public:
 	MyString() {}
 
-	MyString(const char * str, const size_t size) : size_{ size } {
+	MyString(const char * str, const size_t size) noexcept : size_{ size } {
 		data_ = new (std::nothrow) char[size_];
 		if (data_) {
 			std::memcpy(data_, str, size_);
@@ -23,7 +23,7 @@ public:
 		}
 	}
 
-	MyString(const MyString& other) : size_(other.size_)
+	MyString(const MyString& other) noexcept : size_(other.size_)
 	{
 		data_ = new (std::nothrow) char[size_];
 		if (data_)
@@ -40,7 +40,7 @@ public:
 		other.size_ = 0;
 	}
 
-	MyString& operator=(const MyString& other)
+	MyString& operator=(const MyString& other) noexcept
 	{
 		MyString tmp (other);
 		*this = std::move(tmp);

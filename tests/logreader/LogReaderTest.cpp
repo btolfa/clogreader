@@ -123,6 +123,16 @@ abc)"
 	reader.Close();
 }
 
+TEST_F(LogReaderTest, ShouldFailIfbufferTooShort)
+{
+	TmpFile test_file{ R"(aaaaaaaaaa)" };
+	char short_buffer[4];
 
+	ASSERT_TRUE(reader.SetFilter("a*", strlen("a*")));
+	ASSERT_TRUE(reader.Open(test_file.path()));
+
+	EXPECT_FALSE(reader.GetNextLine(short_buffer, sizeof(short_buffer)));
+	reader.Close();
+}
 
 }
